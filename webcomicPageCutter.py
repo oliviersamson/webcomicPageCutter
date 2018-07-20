@@ -141,12 +141,12 @@ class DialogWindow:
             command=lambda: self.askSplitColor(color_label, self.ask_color_frames_nb))
         color_button.pack(side=LEFT, pady=10, padx=0)
         color_button = Button(ask_color_frame, text='X', width=3,\
-            command=lambda: self.deleteFrame(ask_color_frame, self.ask_color_frames_nb))
+            command=lambda: self.deleteAskColorFrame(ask_color_frame, self.ask_color_frames_nb))
         color_button.pack(side=LEFT, pady=10, padx=10, expand=True, fill=X)
 
         self.ask_color_frames_nb = self.ask_color_frames_nb + 1
 
-    def deleteFrame(self, frame, index):
+    def deleteAskColorFrame(self, frame, index):
         if index != 1:
             frame.grid_forget()
             frame = None
