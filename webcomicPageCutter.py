@@ -1,5 +1,5 @@
 from tkinter import Tk, Label, Entry, IntVar, Toplevel, StringVar, OptionMenu, Button, messagebox, \
-                    simpledialog, filedialog, colorchooser, TclError, Frame, LEFT, RIGHT, X, Y
+                    simpledialog, filedialog, colorchooser, TclError, Frame, LEFT, RIGHT, TOP, X, Y
 from PIL import Image
 from threading import Thread, Lock
 
@@ -12,6 +12,8 @@ class DialogWindow:
     def __init__(self):
         self.window = Tk()
         self.window.title('Webcomic Page Cutter')
+
+        self.ask_color_frames_nb = 0
 
         self.filenames = None
         self.result_directory = None
@@ -45,50 +47,57 @@ class DialogWindow:
         self.mode_option_menu = OptionMenu(self.window, self.mode, *['Line average', 'Single pixels'])
         self.mode_option_menu.grid(column=2, row=2, pady=10, padx=10, sticky='ew')
 
-        ask_color_frame = Frame(self.window)
-        ask_color_frame.grid(columnspan=3, row=3, pady=0, padx=0, sticky='ew')
+        self.ask_color_frames = Frame(self.window, highlightthickness=0)
+        self.ask_color_frames.grid(columnspan=3, pady=0, padx=0, sticky='ew')
 
-        ask_color_label = Label(ask_color_frame, text='Cutting color', width=20, anchor='w')
+        self.addAskColorFrame()
+
+        '''
+        ask_color_label = Label(self.ask_color_frames, text='Cutting color', width=20, anchor='w')
         ask_color_label.pack(side=LEFT, pady=10, padx=10)
-        self.color_label = Label(ask_color_frame, width=20, anchor='w')
+        self.color_label = Label(self.ask_color_frames, width=20, anchor='w')
         self.color_label.pack(side=LEFT, pady=10, padx=10)
-        color_button = Button(ask_color_frame, text='Choose color', command=self.askSplitColor)
+        color_button = Button(self.ask_color_frames, text='Choose color', command=lambda: self.askSplitColor(self.ask_color_frames_nb))
         color_button.pack(side=LEFT, pady=10, padx=10, expand=True, fill=X)
+        '''
+
+        color_button = Button(self.window, text='Add color', command=self.addAskColorFrame)
+        color_button.grid(column=2, row=4, pady=10, padx=10, sticky='ew')
 
         ask_threshold_label = Label(self.window, text='Comparison threshold', width=20, anchor='w')
-        ask_threshold_label.grid(column=0, row=4, pady=10, padx=10, sticky='ew')
+        ask_threshold_label.grid(column=0, row=5, pady=10, padx=10, sticky='ew')
         self.threshold_entry = Entry(self.window, textvariable=self.threshold, validate = 'key', \
             validatecommand = vcmd)
-        self.threshold_entry.grid(column=2, row=4, pady=10, padx=10, sticky='ew')
+        self.threshold_entry.grid(column=2, row=5, pady=10, padx=10, sticky='ew')
 
         ask_min_nb_lines_label = Label(self.window, text='Min. # of lines for cut', width=20, anchor='w')
-        ask_min_nb_lines_label.grid(column=0, row=5, pady=10, padx=10, sticky='ew')
+        ask_min_nb_lines_label.grid(column=0, row=6, pady=10, padx=10, sticky='ew')
         self.min_nb_lines_entry = Entry(self.window, textvariable=self.min_nb_lines, validate = 'key', \
             validatecommand = vcmd)
-        self.min_nb_lines_entry.grid(column=2, row=5, pady=10, padx=10, sticky='ew')
+        self.min_nb_lines_entry.grid(column=2, row=6, pady=10, padx=10, sticky='ew')
 
         ask_min_height_label = Label(self.window, text='Min. page height', width=20, anchor='w')
-        ask_min_height_label.grid(column=0, row=6, pady=10, padx=10, sticky='ew')
+        ask_min_height_label.grid(column=0, row=7, pady=10, padx=10, sticky='ew')
         self.min_height_entry = Entry(self.window, textvariable=self.min_height, validate = 'key', \
             validatecommand = vcmd)
-        self.min_height_entry.grid(column=2, row=6, pady=10, padx=10, sticky='ew')
+        self.min_height_entry.grid(column=2, row=7, pady=10, padx=10, sticky='ew')
 
         ask_starting_nb_label = Label(self.window, text='Results starting #', width=20, anchor='w')
-        ask_starting_nb_label.grid(column=0, row=7, pady=10, padx=10, sticky='ew')
+        ask_starting_nb_label.grid(column=0, row=8, pady=10, padx=10, sticky='ew')
         self.starting_nb_entry = Entry(self.window, textvariable=self.starting_number, validate = 'key', \
             validatecommand = vcmd)
-        self.starting_nb_entry.grid(column=2, row=7, pady=10, padx=10, sticky='ew')
+        self.starting_nb_entry.grid(column=2, row=8, pady=10, padx=10, sticky='ew')
 
         ask_format_label = Label(self.window, text='Result format', width=20, anchor='w')
-        ask_format_label.grid(column=0, row=8, pady=10, padx=10, sticky='ew')
+        ask_format_label.grid(column=0, row=9, pady=10, padx=10, sticky='ew')
         self.format_option_menu = OptionMenu(self.window, self.format, *['tif', 'jpg', 'png'])
-        self.format_option_menu.grid(column=2, row=8, pady=10, padx=10, sticky='ew')
+        self.format_option_menu.grid(column=2, row=9, pady=10, padx=10, sticky='ew')
 
         start_button = Button(self.window, text='Start', command=self.onStart)
-        start_button.grid(column=1, row=9, pady=10, padx=10, sticky='ew')
+        start_button.grid(column=1, row=10, pady=10, padx=10, sticky='ew')
 
         cancel_button = Button(self.window, text='Cancel', command=self.close)
-        cancel_button.grid(column=2, row=9, pady=10, padx=10, sticky='ew')
+        cancel_button.grid(column=2, row=10, pady=10, padx=10, sticky='ew')
 
         self.window.protocol("WM_DELETE_WINDOW", self.close)
 
@@ -129,6 +138,20 @@ class DialogWindow:
         self.window.destroy()
         exit(0)
 
+    def addAskColorFrame(self):
+        ask_color_frame = Frame(self.ask_color_frames, highlightthickness=0)
+        ask_color_frame.grid(columnspan=3, row=self.ask_color_frames_nb, pady=0, padx=0, sticky='ew')
+
+        ask_color_label = Label(ask_color_frame, text='Cutting color', width=20, anchor='w')
+        ask_color_label.pack(side=LEFT, pady=10, padx=10)
+        color_label = Label(ask_color_frame, width=20, anchor='w')
+        color_label.pack(side=LEFT, pady=10, padx=10)
+        color_button = Button(ask_color_frame, text='Choose color', \
+            command=lambda: self.askSplitColor(self.ask_color_frames_nb, color_label))
+        color_button.pack(side=LEFT, pady=10, padx=10, expand=True, fill=X)
+
+        self.ask_color_frames_nb = self.ask_color_frames_nb + 1
+
     def askFilesNames(self):
         self.filenames = filedialog.askopenfilenames()
         self.files_label.config(text='{} file(s) chosen' .format(len(self.filenames)))
@@ -137,10 +160,10 @@ class DialogWindow:
         self.result_directory = filedialog.askdirectory()
         self.directory_label.config(text='{}' .format(self.result_directory))
 
-    def askSplitColor(self):
+    def askSplitColor(self, index, color_label):
         self.split_color = colorchooser.askcolor()
         if self.split_color != None and self.split_color != (None, None):
-            self.color_label.config(background='{}' .format(self.split_color[1]))
+            color_label.config(background='{}' .format(self.split_color[1]))
 
     def validateEntry(self, text):
         if str.isdigit(text) or text == '':
