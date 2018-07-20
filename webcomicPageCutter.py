@@ -145,12 +145,24 @@ class DialogWindow:
         ask_color_label = Label(ask_color_frame, text='Cutting color', width=20, anchor='w')
         ask_color_label.pack(side=LEFT, pady=10, padx=10)
         color_label = Label(ask_color_frame, width=20, anchor='w')
-        color_label.pack(side=LEFT, pady=10, padx=10)
+        color_label.pack(side=LEFT, pady=10, padx=15)
         color_button = Button(ask_color_frame, text='Choose color', \
-            command=lambda: self.askSplitColor(self.ask_color_frames_nb, color_label))
+            command=lambda: self.askSplitColor(color_label, self.ask_color_frames_nb))
+        color_button.pack(side=LEFT, pady=10, padx=0)
+        color_button = Button(ask_color_frame, text='X', width=3,\
+            command=lambda: self.deleteFrame(ask_color_frame, self.ask_color_frames_nb))
         color_button.pack(side=LEFT, pady=10, padx=10, expand=True, fill=X)
 
         self.ask_color_frames_nb = self.ask_color_frames_nb + 1
+
+    def deleteFrame(self, frame, index):
+        if index != 1:
+            frame.grid_forget()
+            frame = None
+
+            self.ask_color_frames_nb = self.ask_color_frames_nb - 1
+        else:
+            messagebox.showerror("Error", "Cannot delete the remaining color widget")
 
     def askFilesNames(self):
         self.filenames = filedialog.askopenfilenames()
@@ -160,7 +172,7 @@ class DialogWindow:
         self.result_directory = filedialog.askdirectory()
         self.directory_label.config(text='{}' .format(self.result_directory))
 
-    def askSplitColor(self, index, color_label):
+    def askSplitColor(self, color_label, index):
         self.split_color = colorchooser.askcolor()
         if self.split_color != None and self.split_color != (None, None):
             color_label.config(background='{}' .format(self.split_color[1]))
