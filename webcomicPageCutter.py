@@ -134,7 +134,7 @@ class DialogWindow:
         ask_color_frame = Frame(self.ask_color_frames, highlightthickness=0)
         ask_color_frame.grid(columnspan=3, pady=0, padx=0, sticky='ew')
 
-        ask_color_label = Label(ask_color_frame, text='Cutting color', width=20, anchor='w')
+        ask_color_label = Label(ask_color_frame, text='Cutting color #' + str(self.ask_color_frames_nb + 1), width=20, anchor='w')
         ask_color_label.pack(side=LEFT, pady=10, padx=10)
         color_label = Label(ask_color_frame, width=20, anchor='w')
         color_label.pack(side=LEFT, pady=10, padx=15)
@@ -153,8 +153,14 @@ class DialogWindow:
             frame = None
 
             self.ask_color_frames_nb = self.ask_color_frames_nb - 1
+
+            self.updateAskColorLabelsNb()
         else:
             messagebox.showerror("Error", "Cannot delete the remaining color widget")
+
+    def updateAskColorLabelsNb(self):
+        for index, ask_color_frame in enumerate(self.ask_color_frames.winfo_children()):
+            ask_color_frame.winfo_children()[0].config(text='Cutting color #' + str(index + 1))
 
     def askFilesNames(self):
         self.filenames = filedialog.askopenfilenames()
