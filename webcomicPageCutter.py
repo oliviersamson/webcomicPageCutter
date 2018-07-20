@@ -52,15 +52,6 @@ class DialogWindow:
 
         self.addAskColorFrame()
 
-        '''
-        ask_color_label = Label(self.ask_color_frames, text='Cutting color', width=20, anchor='w')
-        ask_color_label.pack(side=LEFT, pady=10, padx=10)
-        self.color_label = Label(self.ask_color_frames, width=20, anchor='w')
-        self.color_label.pack(side=LEFT, pady=10, padx=10)
-        color_button = Button(self.ask_color_frames, text='Choose color', command=lambda: self.askSplitColor(self.ask_color_frames_nb))
-        color_button.pack(side=LEFT, pady=10, padx=10, expand=True, fill=X)
-        '''
-
         color_button = Button(self.window, text='Add color', command=self.addAskColorFrame)
         color_button.grid(column=2, row=4, pady=10, padx=10, sticky='ew')
 
