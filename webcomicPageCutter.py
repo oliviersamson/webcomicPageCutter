@@ -132,7 +132,7 @@ class DialogWindow:
 
     def addAskColorFrame(self):
         ask_color_frame = Frame(self.ask_color_frames, highlightthickness=0)
-        ask_color_frame.grid(columnspan=3, row=self.ask_color_frames_nb, pady=0, padx=0, sticky='ew')
+        ask_color_frame.grid(columnspan=3, pady=0, padx=0, sticky='ew')
 
         ask_color_label = Label(ask_color_frame, text='Cutting color', width=20, anchor='w')
         ask_color_label.pack(side=LEFT, pady=10, padx=10)
@@ -149,7 +149,7 @@ class DialogWindow:
 
     def deleteAskColorFrame(self, frame, index):
         if index != 1:
-            frame.grid_forget()
+            frame.destroy()
             frame = None
 
             self.ask_color_frames_nb = self.ask_color_frames_nb - 1
