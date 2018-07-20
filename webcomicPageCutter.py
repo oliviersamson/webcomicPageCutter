@@ -1,5 +1,5 @@
-from tkinter import Tk, Label, Entry, IntVar, Toplevel, StringVar, OptionMenu, Button, messagebox, \
-                    simpledialog, filedialog, colorchooser, TclError, Frame, LEFT, RIGHT, TOP, X, Y
+from tkinter import Tk, Label, Entry, IntVar, StringVar, OptionMenu, Button, messagebox, \
+                    filedialog, colorchooser, TclError, Frame, LEFT, X
 from PIL import Image
 from threading import Thread, Lock
 
