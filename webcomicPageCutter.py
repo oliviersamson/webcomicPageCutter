@@ -12,6 +12,7 @@ class DialogWindow:
     def __init__(self):
         self.window = Tk()
         self.window.title('Webcomic Page Cutter')
+        self.window.resizable(0,0)
 
         self.ask_color_frames_nb = 0
 
