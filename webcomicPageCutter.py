@@ -14,11 +14,12 @@ class DialogWindow:
         self.window.title('Webcomic Page Cutter')
         self.window.resizable(0,0)
 
+        self.ask_color_frames_list = []
         self.ask_color_frames_nb = 0
 
         self.filenames = None
         self.result_directory = None
-        self.split_color = None
+        self.split_colors = []
 
         self.mode = StringVar(self.window, 'Line average')
         self.threshold = IntVar(self.window, 10)
@@ -104,9 +105,12 @@ class DialogWindow:
             messagebox.showerror("Error", "No output directory chosen")
             return
 
-        if self.split_color == None or self.split_color == (None, None):
-            messagebox.showerror("Error", "No cutting color chosen")
-            return
+        for split_color in self.split_colors:
+            if split_color[1] == None or split_color[1] == (None, None):
+                for index, ask_color_frame in enumerate(self.ask_color_frames.winfo_children()):
+                    if ask_color_frame.winfo_id() == split_color[0]:
+                        messagebox.showerror("Error", "No cutting color chosen for color #" + str(index + 1))
+                        return
 
         if self.threshold_entry.get() == '':
             messagebox.showerror("Error", "No cutting threshold specified")
@@ -139,16 +143,19 @@ class DialogWindow:
         color_label = Label(ask_color_frame, width=20, anchor='w')
         color_label.pack(side=LEFT, pady=10, padx=15)
         color_button = Button(ask_color_frame, text='Choose color', \
-            command=lambda: self.askSplitColor(color_label, self.ask_color_frames_nb))
+            command=lambda: self.askSplitColor(ask_color_frame))
         color_button.pack(side=LEFT, pady=10, padx=0)
         color_button = Button(ask_color_frame, text='X', width=3,\
-            command=lambda: self.deleteAskColorFrame(ask_color_frame, self.ask_color_frames_nb))
+            command=lambda: (self.deleteSplitColor(ask_color_frame.winfo_id()), self.deleteAskColorFrame(ask_color_frame)))
         color_button.pack(side=LEFT, pady=10, padx=10, expand=True, fill=X)
+
+        if self.ask_color_frames_nb != 0:
+            self.askSplitColor(ask_color_frame)
 
         self.ask_color_frames_nb = self.ask_color_frames_nb + 1
 
-    def deleteAskColorFrame(self, frame, index):
-        if index != 1:
+    def deleteAskColorFrame(self, frame):
+        if self.ask_color_frames_nb != 1:
             frame.destroy()
             frame = None
 
@@ -157,6 +164,10 @@ class DialogWindow:
             self.updateAskColorLabelsNb()
         else:
             messagebox.showerror("Error", "Cannot delete the remaining color widget")
+
+    def deleteSplitColor(self, frame_id):
+        if self.ask_color_frames_nb != 1:
+            self.split_colors.remove(next(split_color for split_color in self.split_colors if split_color[0] == frame_id))
 
     def updateAskColorLabelsNb(self):
         for index, ask_color_frame in enumerate(self.ask_color_frames.winfo_children()):
@@ -170,10 +181,20 @@ class DialogWindow:
         self.result_directory = filedialog.askdirectory()
         self.directory_label.config(text='{}' .format(self.result_directory))
 
-    def askSplitColor(self, color_label, index):
-        self.split_color = colorchooser.askcolor()
-        if self.split_color != None and self.split_color != (None, None):
-            color_label.config(background='{}' .format(self.split_color[1]))
+    def askSplitColor(self, ask_color_frame):
+        color = colorchooser.askcolor()
+
+        already_exists = False
+        for index, split_color in enumerate(self.split_colors):
+            if split_color[0] == ask_color_frame.winfo_id():
+                self.split_colors[index] = (split_color[0], color)
+                already_exists = True
+
+        if not already_exists:
+            self.split_colors.append((ask_color_frame.winfo_id(), color))
+        
+        if color != None and color != (None, None):
+            ask_color_frame.winfo_children()[1].config(background='{}' .format(color[1]))
 
     def validateEntry(self, text):
         if str.isdigit(text) or text == '':
@@ -189,7 +210,7 @@ def isWithinSplitColorThreshold(pixel, split_color, split_color_threshold):
     else:
         return False
 
-def cutPages(filenames, result_directory, comparison_mode, split_color, split_color_threshold, \
+def cutPages(filenames, result_directory, comparison_mode, split_colors, split_color_threshold, \
     min_nb_lines, min_height, start_nb, result_format):
     
     if len(filenames) == 1:
@@ -211,17 +232,19 @@ def cutPages(filenames, result_directory, comparison_mode, split_color, split_co
     for index, image_line in enumerate(image_array):
         uniform_split_color_area = False
         if comparison_mode == 'Single pixels':
-            if all(isWithinSplitColorThreshold(pixel, split_color, split_color_threshold) \
-            for pixel in image_line):
+            for split_color in split_colors:
+                if all(isWithinSplitColorThreshold(pixel, split_color[1], split_color_threshold) \
+                for pixel in image_line):
 
-                same_color_lines.append(index)
-                uniform_split_color_area = True
+                    same_color_lines.append(index)
+                    uniform_split_color_area = True
         else:
             line_average = numpy.mean(image_line, axis=0)
-            if isWithinSplitColorThreshold(line_average, split_color, split_color_threshold):
+            for split_color in split_colors:
+                if isWithinSplitColorThreshold(line_average, split_color[1], split_color_threshold):
 
-                same_color_lines.append(index)
-                uniform_split_color_area = True
+                    same_color_lines.append(index)
+                    uniform_split_color_area = True
 
         if not uniform_split_color_area:
             if len(same_color_lines) > min_nb_lines:
@@ -280,7 +303,7 @@ def main():
     start_time = time.time()
 
     processing_thread = Thread(target=cutPages, args=[dialog_window.filenames, dialog_window.result_directory, \
-        dialog_window.mode.get(), dialog_window.split_color, dialog_window.threshold.get(), dialog_window.min_nb_lines.get(), \
+        dialog_window.mode.get(), dialog_window.split_colors, dialog_window.threshold.get(), dialog_window.min_nb_lines.get(), \
         dialog_window.min_height.get(), dialog_window.starting_number.get(), dialog_window.format.get()], daemon=True)
     
     processing_thread.start()
