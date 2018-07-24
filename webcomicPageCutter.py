@@ -1,5 +1,5 @@
 from tkinter import Tk, Label, Entry, IntVar, StringVar, OptionMenu, Button, messagebox, \
-                    filedialog, colorchooser, TclError, Frame, LEFT, X
+                    filedialog, colorchooser, TclError, Frame, LEFT, RIGHT, X
 from PIL import Image
 from threading import Thread, Lock
 
@@ -22,6 +22,7 @@ class DialogWindow:
         self.split_colors = []
 
         self.mode = StringVar(self.window, 'Line average')
+        self.hex_color = StringVar(self.window)
         self.threshold = IntVar(self.window, 10)
         self.min_nb_lines = IntVar(self.window, 50)
         self.min_height = IntVar(self.window, 3500)
@@ -47,7 +48,7 @@ class DialogWindow:
         ask_mode_label = Label(self.window, text='Cutting mode', width=20, anchor='w')
         ask_mode_label.grid(column=0, row=2, pady=10, padx=10, sticky='ew')
         self.mode_option_menu = OptionMenu(self.window, self.mode, *['Line average', 'Single pixels'])
-        self.mode_option_menu.grid(column=2, row=2, pady=10, padx=10, sticky='ew')
+        self.mode_option_menu.grid(column=2, row=2, pady=10, padx=8, sticky='ew')
 
         self.ask_color_frames = Frame(self.window, highlightthickness=0)
         self.ask_color_frames.grid(columnspan=3, pady=0, padx=0, sticky='ew')
@@ -135,19 +136,27 @@ class DialogWindow:
         exit(0)
 
     def addAskColorFrame(self):
+        hex_vcmd = (self.window.register(self.validateHexEntry), '%P')
+
         ask_color_frame = Frame(self.ask_color_frames, highlightthickness=0)
         ask_color_frame.grid(columnspan=3, pady=0, padx=0, sticky='ew')
 
         ask_color_label = Label(ask_color_frame, text='Cutting color #' + str(self.ask_color_frames_nb + 1), width=20, anchor='w')
         ask_color_label.pack(side=LEFT, pady=10, padx=10)
-        color_label = Label(ask_color_frame, width=20, anchor='w')
-        color_label.pack(side=LEFT, pady=10, padx=15)
-        color_button = Button(ask_color_frame, text='Choose color', \
-            command=lambda: self.askSplitColor(ask_color_frame))
-        color_button.pack(side=LEFT, pady=10, padx=0)
+        color_label = Label(ask_color_frame, width=15, anchor='w')
+        color_label.pack(side=LEFT, pady=10, padx=5)
+        self.color_hex_entry = Entry(ask_color_frame, validate = 'key', validatecommand = hex_vcmd)
+        self.color_hex_entry.insert(0, '0f0f0f')
+        self.color_hex_entry.bind('<FocusIn>', self.on_color_hex_entry_click)
+        self.color_hex_entry.bind('<FocusOut>', self.on_color_hex_focusout)
+        self.color_hex_entry.pack(side=LEFT, pady=10, padx=18)
+        self.color_hex_entry.config(width=6, fg='gray')
         color_button = Button(ask_color_frame, text='X', width=3,\
             command=lambda: (self.deleteSplitColor(ask_color_frame.winfo_id()), self.deleteAskColorFrame(ask_color_frame)))
-        color_button.pack(side=LEFT, pady=10, padx=10, expand=True, fill=X)
+        color_button.pack(side=RIGHT, pady=10, padx=10)
+        color_button = Button(ask_color_frame, text='Pick color', command=lambda: self.askSplitColor(ask_color_frame))
+        color_button.pack(side=LEFT, pady=10, padx=0)   
+        color_button.config(width=12)
 
         if self.ask_color_frames_nb != 0:
             self.askSplitColor(ask_color_frame)
@@ -201,6 +210,21 @@ class DialogWindow:
             return True
         else:
             return False
+
+    def validateHexEntry(self, text):
+        valid_hex_char = lambda c: c in 'abcdef0123456789'
+        return (len(text) < 7) and (all(valid_hex_char(z) for z in text.lower()))
+
+    def on_color_hex_entry_click(self, event):
+        if self.color_hex_entry.cget('fg') == 'gray':
+            self.color_hex_entry.delete(0, "end")
+            self.color_hex_entry.insert(0, '')
+            self.color_hex_entry.config(fg = 'black')
+    
+    def on_color_hex_focusout(self, event):
+        if self.color_hex_entry.get() == '':
+            self.color_hex_entry.insert(0, '0f0f0f')
+            self.color_hex_entry.config(fg = 'gray')
 
 def isWithinSplitColorThreshold(pixel, split_color, split_color_threshold):
     if abs(int(pixel[0]) - int(split_color[0][0])) < split_color_threshold and \
