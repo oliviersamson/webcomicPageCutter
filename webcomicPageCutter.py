@@ -203,6 +203,10 @@ class DialogWindow:
             self.split_colors.append((ask_color_frame.winfo_id(), color))
         
         if color != None and color != (None, None):
+            self.color_hex_entry.delete(0, "end")
+            self.color_hex_entry.insert(0, color[1][2:])
+            self.color_hex_entry.config(fg = 'black')
+            
             ask_color_frame.winfo_children()[1].config(background='{}' .format(color[1]))
 
     def validateEntry(self, text):
