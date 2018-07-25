@@ -158,9 +158,6 @@ class DialogWindow:
         color_button.pack(side=LEFT, pady=10, padx=0)   
         color_button.config(width=12)
 
-        if self.ask_color_frames_nb != 0:
-            self.askSplitColor(ask_color_frame)
-
         self.ask_color_frames_nb = self.ask_color_frames_nb + 1
 
     def deleteAskColorFrame(self, frame):
