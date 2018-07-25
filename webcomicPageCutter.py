@@ -148,7 +148,7 @@ class DialogWindow:
         self.color_hex_entry = Entry(ask_color_frame, validate = 'key', validatecommand = hex_vcmd)
         self.color_hex_entry.insert(0, '0f0f0f')
         self.color_hex_entry.bind('<FocusIn>', self.on_color_hex_entry_click)
-        self.color_hex_entry.bind('<FocusOut>', self.on_color_hex_focusout)
+        self.color_hex_entry.bind('<FocusOut>', lambda _: self.on_color_hex_focusout(None, ask_color_frame))
         self.color_hex_entry.pack(side=LEFT, pady=10, padx=18)
         self.color_hex_entry.config(width=6, fg='gray')
         color_button = Button(ask_color_frame, text='X', width=3,\
@@ -225,10 +225,14 @@ class DialogWindow:
             self.color_hex_entry.insert(0, '')
             self.color_hex_entry.config(fg = 'black')
     
-    def on_color_hex_focusout(self, event):
+    def on_color_hex_focusout(self, event, ask_color_frame):
         if self.color_hex_entry.get() == '':
             self.color_hex_entry.insert(0, '0f0f0f')
             self.color_hex_entry.config(fg = 'gray')
+        elif len(self.color_hex_entry.get()) == 6:
+            hex_color = self.color_hex_entry.get()
+            color = ((int(hex_color[1:2], 16), int(hex_color[3:4], 16), int(hex_color[5:6], 16)), '#' + hex_color)
+            ask_color_frame.winfo_children()[1].config(background='{}' .format(color[1]))
 
 def isWithinSplitColorThreshold(pixel, split_color, split_color_threshold):
     if abs(int(pixel[0]) - int(split_color[0][0])) < split_color_threshold and \
