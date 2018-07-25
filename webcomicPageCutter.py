@@ -145,12 +145,12 @@ class DialogWindow:
         ask_color_label.pack(side=LEFT, pady=10, padx=10)
         color_label = Label(ask_color_frame, width=15, anchor='w')
         color_label.pack(side=LEFT, pady=10, padx=5)
-        self.color_hex_entry = Entry(ask_color_frame, validate = 'key', validatecommand = hex_vcmd)
-        self.color_hex_entry.insert(0, '0f0f0f')
-        self.color_hex_entry.bind('<FocusIn>', self.on_color_hex_entry_click)
-        self.color_hex_entry.bind('<FocusOut>', lambda _: self.on_color_hex_focusout(None, ask_color_frame))
-        self.color_hex_entry.pack(side=LEFT, pady=10, padx=18)
-        self.color_hex_entry.config(width=6, fg='gray')
+        color_hex_entry = Entry(ask_color_frame, validate = 'key', validatecommand = hex_vcmd)
+        color_hex_entry.insert(0, '0f0f0f')
+        color_hex_entry.bind('<FocusIn>', lambda _: self.on_color_hex_entry_click(None, ask_color_frame))
+        color_hex_entry.bind('<FocusOut>', lambda _: self.on_color_hex_focusout(None, ask_color_frame))
+        color_hex_entry.pack(side=LEFT, pady=10, padx=18)
+        color_hex_entry.config(width=6, fg='gray')
         color_button = Button(ask_color_frame, text='X', width=3,\
             command=lambda: (self.deleteSplitColor(ask_color_frame.winfo_id()), self.deleteAskColorFrame(ask_color_frame)))
         color_button.pack(side=RIGHT, pady=10, padx=10)
@@ -200,9 +200,9 @@ class DialogWindow:
             self.split_colors.append((ask_color_frame.winfo_id(), color))
         
         if color != None and color != (None, None):
-            self.color_hex_entry.delete(0, "end")
-            self.color_hex_entry.insert(0, color[1][1:])
-            self.color_hex_entry.config(fg = 'black')
+            ask_color_frame.winfo_children()[2].delete(0, "end")
+            ask_color_frame.winfo_children()[2].insert(0, color[1][1:])
+            ask_color_frame.winfo_children()[2].config(fg = 'black')
             
             ask_color_frame.winfo_children()[1].config(background='{}' .format(color[1]))
 
@@ -216,18 +216,18 @@ class DialogWindow:
         valid_hex_char = lambda c: c in 'abcdef0123456789'
         return (len(text) < 7) and (all(valid_hex_char(z) for z in text.lower()))
 
-    def on_color_hex_entry_click(self, event):
-        if self.color_hex_entry.cget('fg') == 'gray':
-            self.color_hex_entry.delete(0, "end")
-            self.color_hex_entry.insert(0, '')
-            self.color_hex_entry.config(fg = 'black')
+    def on_color_hex_entry_click(self, event, ask_color_frame):
+        if ask_color_frame.winfo_children()[2].cget('fg') == 'gray':
+            ask_color_frame.winfo_children()[2].delete(0, "end")
+            ask_color_frame.winfo_children()[2].insert(0, '')
+            ask_color_frame.winfo_children()[2].config(fg = 'black')
     
     def on_color_hex_focusout(self, event, ask_color_frame):
-        if self.color_hex_entry.get() == '':
-            self.color_hex_entry.insert(0, '0f0f0f')
-            self.color_hex_entry.config(fg = 'gray')
-        elif len(self.color_hex_entry.get()) == 6:
-            hex_color = self.color_hex_entry.get()
+        if ask_color_frame.winfo_children()[2].get() == '':
+            ask_color_frame.winfo_children()[2].insert(0, '0f0f0f')
+            ask_color_frame.winfo_children()[2].config(fg = 'gray')
+        elif len(ask_color_frame.winfo_children()[2].get()) == 6:
+            hex_color = ask_color_frame.winfo_children()[2].get()
             color = ((int(hex_color[1:2], 16), int(hex_color[3:4], 16), int(hex_color[5:6], 16)), '#' + hex_color)
             ask_color_frame.winfo_children()[1].config(background='{}' .format(color[1]))
 
