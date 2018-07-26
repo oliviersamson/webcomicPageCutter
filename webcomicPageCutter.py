@@ -14,6 +14,8 @@ class DialogWindow:
         self.window.title('Webcomic Page Cutter')
         self.window.resizable(0,0)
 
+        self.background_color = self.window.cget('background')
+
         self.ask_color_frames_list = []
         self.ask_color_frames_nb = 0
 
@@ -155,7 +157,8 @@ class DialogWindow:
         color_hex_entry.pack(side=LEFT, pady=10, padx=18)
         color_hex_entry.config(width=6, fg='gray')
         color_button = Button(ask_color_frame, text='X', width=3,\
-            command=lambda: (self.deleteSplitColor(ask_color_frame.winfo_id()), self.deleteAskColorFrame(ask_color_frame)))
+            command=lambda:(self.deleteSplitColor(ask_color_frame.winfo_id()) if self.ask_color_frames_nb != 1 else None, \
+            self.deleteAskColorFrame(ask_color_frame)))
         color_button.pack(side=RIGHT, pady=10, padx=10)
         color_button = Button(ask_color_frame, text='Pick color', command=lambda: self.askSplitColor(ask_color_frame))
         color_button.pack(side=LEFT, pady=10, padx=0)   
@@ -185,7 +188,6 @@ class DialogWindow:
             self.split_colors.append((frame_id, color))
 
     def deleteSplitColor(self, frame_id):
-        if self.ask_color_frames_nb != 1:
             try:
                 self.split_colors.remove(next(split_color for split_color in self.split_colors if split_color[0] == frame_id))
             except StopIteration:
@@ -230,11 +232,25 @@ class DialogWindow:
             ask_color_frame.winfo_children()[2].delete(0, "end")
             ask_color_frame.winfo_children()[2].insert(0, '')
             ask_color_frame.winfo_children()[2].config(fg = 'black')
+        
+        elif ask_color_frame.winfo_children()[2].cget('fg') == 'red':
+            ask_color_frame.winfo_children()[2].config(fg = 'black')
     
     def on_color_hex_focusout(self, event, ask_color_frame):
         if ask_color_frame.winfo_children()[2].get() == '':
             ask_color_frame.winfo_children()[2].insert(0, '0f0f0f')
             ask_color_frame.winfo_children()[2].config(fg = 'gray')
+
+            self.deleteSplitColor(ask_color_frame.winfo_id())
+
+            ask_color_frame.winfo_children()[1].config(background=self.background_color)
+
+        elif len(ask_color_frame.winfo_children()[2].get()) < 6:
+            ask_color_frame.winfo_children()[2].config(fg = 'red')
+
+            self.deleteSplitColor(ask_color_frame.winfo_id())
+
+            ask_color_frame.winfo_children()[1].config(background=self.background_color)
 
         elif len(ask_color_frame.winfo_children()[2].get()) == 6:
             hex_color = ask_color_frame.winfo_children()[2].get()
