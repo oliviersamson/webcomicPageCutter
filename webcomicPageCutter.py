@@ -105,6 +105,10 @@ class DialogWindow:
             messagebox.showerror("Error", "No output directory chosen")
             return
 
+        if self.split_colors == []:
+            messagebox.showerror("Error", "No color chosen")
+            return
+
         for split_color in self.split_colors:
             if split_color[1] == None or split_color[1] == (None, None):
                 for index, ask_color_frame in enumerate(self.ask_color_frames.winfo_children()):
