@@ -22,7 +22,6 @@ class DialogWindow:
         self.split_colors = []
 
         self.mode = StringVar(self.window, 'Line average')
-        self.hex_color = StringVar(self.window)
         self.threshold = IntVar(self.window, 10)
         self.min_nb_lines = IntVar(self.window, 50)
         self.min_height = IntVar(self.window, 3500)
