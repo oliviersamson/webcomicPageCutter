@@ -171,6 +171,16 @@ class DialogWindow:
         else:
             messagebox.showerror("Error", "Cannot delete the remaining color widget")
 
+    def addSplitColor(self, frame_id, color):
+        already_exists = False
+        for index, split_color in enumerate(self.split_colors):
+            if split_color[0] == frame_id:
+                self.split_colors[index] = (split_color[0], color)
+                already_exists = True
+
+        if not already_exists:
+            self.split_colors.append((frame_id, color))
+
     def deleteSplitColor(self, frame_id):
         if self.ask_color_frames_nb != 1:
             self.split_colors.remove(next(split_color for split_color in self.split_colors if split_color[0] == frame_id))
@@ -190,14 +200,7 @@ class DialogWindow:
     def askSplitColor(self, ask_color_frame):
         color = colorchooser.askcolor()
 
-        already_exists = False
-        for index, split_color in enumerate(self.split_colors):
-            if split_color[0] == ask_color_frame.winfo_id():
-                self.split_colors[index] = (split_color[0], color)
-                already_exists = True
-
-        if not already_exists:
-            self.split_colors.append((ask_color_frame.winfo_id(), color))
+        self.addSplitColor(ask_color_frame.winfo_id(), color)
         
         if color != None and color != (None, None):
             ask_color_frame.winfo_children()[2].delete(0, "end")
@@ -226,6 +229,7 @@ class DialogWindow:
         if ask_color_frame.winfo_children()[2].get() == '':
             ask_color_frame.winfo_children()[2].insert(0, '0f0f0f')
             ask_color_frame.winfo_children()[2].config(fg = 'gray')
+
         elif len(ask_color_frame.winfo_children()[2].get()) == 6:
             hex_color = ask_color_frame.winfo_children()[2].get()
             color = ((int(hex_color[1:2], 16), int(hex_color[3:4], 16), int(hex_color[5:6], 16)), '#' + hex_color)
