@@ -236,6 +236,9 @@ class DialogWindow:
         elif len(ask_color_frame.winfo_children()[2].get()) == 6:
             hex_color = ask_color_frame.winfo_children()[2].get()
             color = ((int(hex_color[1:2], 16), int(hex_color[3:4], 16), int(hex_color[5:6], 16)), '#' + hex_color)
+
+            self.addSplitColor(ask_color_frame.winfo_id(), color)
+            
             ask_color_frame.winfo_children()[1].config(background='{}' .format(color[1]))
 
 def isWithinSplitColorThreshold(pixel, split_color, split_color_threshold):
