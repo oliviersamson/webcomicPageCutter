@@ -156,13 +156,13 @@ class DialogWindow:
         color_hex_entry.bind('<FocusOut>', lambda _: self.on_color_hex_focusout(None, ask_color_frame))
         color_hex_entry.pack(side=LEFT, pady=10, padx=18)
         color_hex_entry.config(width=6, fg='gray')
-        color_button = Button(ask_color_frame, text='X', width=3,\
+        pick_color_button = Button(ask_color_frame, text='Pick color', command=lambda: self.askSplitColor(ask_color_frame))
+        pick_color_button.pack(side=LEFT, pady=10, padx=0)   
+        pick_color_button.config(width=12)
+        delete_color_button = Button(ask_color_frame, text='X', width=3,\
             command=lambda:(self.deleteSplitColor(ask_color_frame.winfo_id()) if self.ask_color_frames_nb != 1 else None, \
             self.deleteAskColorFrame(ask_color_frame)))
-        color_button.pack(side=RIGHT, pady=10, padx=10)
-        color_button = Button(ask_color_frame, text='Pick color', command=lambda: self.askSplitColor(ask_color_frame))
-        color_button.pack(side=LEFT, pady=10, padx=0)   
-        color_button.config(width=12)
+        delete_color_button.pack(side=RIGHT, pady=10, padx=10)
 
         self.ask_color_frames_nb = self.ask_color_frames_nb + 1
 
